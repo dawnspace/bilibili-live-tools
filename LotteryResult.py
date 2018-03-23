@@ -21,7 +21,7 @@ class LotteryResult(bilibili):
                     }
                     response = requests.get(url, headers=headers)
                     try:
-                        print("房间 %-9s PC端活动抽奖结果:" %(self.activity_roomid_list[0]),response.json()['data']['gift_name']+"x"+str(response.json()['data']['gift_num']))
+                        print("房间 %-9s 网页端活动抽奖结果:" %(self.activity_roomid_list[0]),response.json()['data']['gift_name']+"x"+str(response.json()['data']['gift_num']))
                         del self.activity_roomid_list[0]
                         del self.activity_raffleid_list[0]
                         del self.activity_time_list[0]
