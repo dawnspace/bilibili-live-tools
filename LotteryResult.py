@@ -42,7 +42,7 @@ class LotteryResult(bilibili):
                     response = requests.get(url, headers=headers)
                     if response.json()['data']['gift_name'] != "":
                         try:
-                            print("房间 %-9s 小电视抽奖结果:" %(self.TV_roomid_list[0]),(response.json()['data']['gift_name'])+"x"+str(response.json()['data']['gift_num']))
+                            print("房间 %-9s 小电视道具抽奖结果:" %(self.TV_roomid_list[0]),(response.json()['data']['gift_name'])+"x"+str(response.json()['data']['gift_num']))
                             del self.TV_roomid_list[0]
                             del self.TV_raffleid_list[0]
                             del self.TV_time_list[0]
