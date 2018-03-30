@@ -7,7 +7,6 @@ import json
 import datetime
 import time
 import hashlib
-import re
 import requests
 # from printer import Printer
 import sys

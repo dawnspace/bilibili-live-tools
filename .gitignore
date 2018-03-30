@@ -1,2 +1,6 @@
-
+__pycache__/
+.vscode/
+.idea/
+log.txt
+user.conf
 .DS_Store
