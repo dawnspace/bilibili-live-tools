@@ -199,3 +199,32 @@ class API():
 
         response = requests.post(url, headers=self.bilibili.pcheaders, data=data)
         print(response.json())
+        
+    # 查询主播的 uid    
+    def get_uid_in_room(self,roomID):
+        url = "http://api.live.bilibili.com/live_user/v1/UserInfo/get_anchor_in_room?roomid=" + roomID
+
+        response = requests.get(url, headers=self.bilibili.pcheaders)
+        return response.json()['data']['info']['uid']
+    
+    # 网页端发送包裹礼物
+    def send_bag_gift_web(self,roomID,giftID,giftNum,bagID):
+        url = "http://api.live.bilibili.com/gift/v2/live/bag_send"
+        data = {
+            'uid' : self.bilibili.mid,
+            'gift_id' : giftID,
+            'ruid' : self.get_uid_in_room(roomID),
+            'gift_num' : giftNum,
+            'bag_id' : bagID,
+            'platform' : 'pc',
+            'biz_code' : 'live',
+            'biz_id' : roomID,
+            'rnd' : CurrentTime(),
+            'storm_beat_id' : '0',
+            'metadata': '',
+            'price' : '0',
+            'csrf_token' :self.bilibili.csrf
+        }
+
+        response = requests.post(url, headers=self.bilibili.pcheaders, data=data)
+        # print(response.json())
