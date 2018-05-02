@@ -1,15 +1,14 @@
-from login import Login
+from bilibili import bilibili
 import hashlib
 import requests
 import datetime
 import time
 import asyncio
+import utils
+from printer import Printer
 
-class Silver(Login):
-    # 获取当前系统时间的unix时间戳
-    def CurrentTime(self):
-        currenttime = str(int(time.mktime(datetime.datetime.now().timetuple())))
-        return currenttime
+
+class Silver():
 
     # 将time_end时间转换成正常时间
     def DataTime(self):
@@ -17,68 +16,48 @@ class Silver(Login):
         return datatime
 
     # 领瓜子时判断领取周期的参数
-    def time_start(self):
-        time = self.CurrentTime()
-        temp_params = 'access_key=' + self.access_key + '&actionKey=' + self.actionKey + '&appkey=' + self.appkey + '&build=' + self.build + '&device=' + self.device + '&mobi_app=' + self.mobi_app + '&platform=' + self.platform + '&ts=' + time
-        params = temp_params + self.app_secret
-        hash = hashlib.md5()
-        hash.update(params.encode('utf-8'))
-        GetTask_url = 'https://api.live.bilibili.com/mobile/freeSilverCurrentTask?' + temp_params + '&sign=' + str(
-            hash.hexdigest())
-        response = self.ses.get(GetTask_url)
-        temp = response.json()
+    async def time_start(self):
+
+        response = await bilibili().get_time_about_silver()
+        temp = await response.json()
         # print (temp['code'])    #宝箱领完返回的code为-10017
         if temp['code'] == -10017:
-            print("今天的瓜子领完了")
+            Printer().printlist_append(['join_lottery', '', 'user', "今日宝箱领取完毕"],True)
         else:
             time_start = temp['data']['time_start']
             return str(time_start)
 
     # 领瓜子时判断领取周期的参数
-    def time_end(self):
+    async def time_end(self):
         try:
-            time = self.CurrentTime()
-            temp_params = 'access_key=' + self.access_key + '&actionKey=' + self.actionKey + '&appkey=' + self.appkey + '&build=' + self.build + '&device=' + self.device + '&mobi_app=' + self.mobi_app + '&platform=' + self.platform + '&ts=' + time
-            params = temp_params + self.app_secret
-            hash = hashlib.md5()
-            hash.update(params.encode('utf-8'))
-            GetTask_url = 'https://api.live.bilibili.com/mobile/freeSilverCurrentTask?' + temp_params + '&sign=' + str(
-                hash.hexdigest())
-            response = requests.get(GetTask_url, headers=self.appheaders)
-            temp = response.json()
+            response = await bilibili().get_time_about_silver()
+            temp = await response.json()
             time_end = temp['data']['time_end']
             return str(time_end)
         except:
             pass
 
     # 领取银瓜子
-    def GetAward(self):
+    async def GetAward(self):
         try:
-            time = self.CurrentTime()
-            timeend = self.time_end()
-            timestart = self.time_start()
-            temp_params = 'access_key=' + self.access_key + '&actionKey=' + self.actionKey + '&appkey=' + self.appkey + '&build=' + self.build + '&device=' + self.device + '&mobi_app=' + self.mobi_app + '&platform=' + self.platform + '&time_end=' + timeend + '&time_start=' + timestart + '&ts=' + time
-            params = temp_params + self.app_secret
-            hash = hashlib.md5()
-            hash.update(params.encode('utf-8'))
-            url = 'https://api.live.bilibili.com/mobile/freeSilverAward?' + temp_params + '&sign=' + str(
-                hash.hexdigest())
-            response = requests.get(url, headers=self.appheaders)
-            print(response.json())
-            return response.json()['code']
+            timeend = await self.time_end()
+            timestart = await self.time_start()
+            response = await bilibili().get_silver(timestart, timeend)
+            #print(response.json())
+            json_response = await response.json()
+            return json_response['code']
         except:
             pass
 
     async def run(self):
         while 1:
-            temp = self.GetAward()
+            Printer().printlist_append(['join_lottery', '', 'user', "检查宝箱状态"], True)
+            temp = await self.GetAward()
             if temp == None or temp == -10017:
-                print("当前时间:", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-                print("半小时后检测一次是否到第二天了")
-                await asyncio.sleep(1800)
+                await asyncio.sleep(utils.seconds_until_tomorrow() + 300)
             elif temp == 0:
-                print("当前时间:", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-                self.GetAward()
+                Printer().printlist_append(['join_lottery', '', 'user', "# 打开了宝箱"])
+                await self.GetAward()
             else:
-                print("当前时间:", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+                Printer().printlist_append(['join_lottery', '', 'user',"# 继续等待宝箱冷却..."])
                 await asyncio.sleep(181)

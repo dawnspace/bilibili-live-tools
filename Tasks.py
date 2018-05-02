@@ -1,48 +1,46 @@
-from login import Login
-import hashlib
+from bilibili import bilibili
 import datetime
-import requests
 import time
 import asyncio
+import os
+import configloader
+import utils
+from printer import Printer
 
+class Tasks():
 
-class Tasks(Login):
-
+    def __init__(self):
+        fileDir = os.path.dirname(os.path.realpath('__file__'))
+        file_user = fileDir + "/conf/user.conf"
+        self.dic_user = configloader.load_user(file_user)
+    
     # 获取每日包裹奖励
-    def Daily_bag(self):
-        url = 'http://api.live.bilibili.com/gift/v2/live/receive_daily_bag'
-        response = requests.get(url, headers=self.pcheaders)
-        try:
-            print("获得----" + response.json()['data']['bag_list'][0]['bag_name'] + "----成功")
-        except:
-            pass
+    async def Daily_bag(self):
+        response = await bilibili().get_dailybag()
+        json_response = await response.json()
+        for i in range(0,len(json_response['data']['bag_list'])):
+            Printer().printlist_append(['join_lottery', '', 'user', "# 获得-" + json_response['data']['bag_list'][i]['bag_name'] + "-成功"],True)
+
 
     def CurrentTime(self):
         currenttime = str(int(time.mktime(datetime.datetime.now().timetuple())))
         return currenttime
 
     # 签到功能
-    def DoSign(self):
-        url = 'https://api.live.bilibili.com/sign/doSign'
-        response = requests.get(url, headers=self.pcheaders)
-        temp = response.json()
-        print(temp['msg'])
+    async def DoSign(self):
+        response = await bilibili().get_dosign()
+        temp = await response.json(content_type=None)
+        Printer().printlist_append(['join_lottery', '', 'user', "签到状态:",temp['msg']],True)
 
     # 领取每日任务奖励
-    def Daily_Task(self):
-        url = 'https://api.live.bilibili.com/activity/v1/task/receive_award'
-        payload1 = {'task_id': 'single_watch_task'}
-        response1 = requests.post(url, data=payload1, headers=self.appheaders)
-        payload2 = {'task_id': 'double_watch_task'}
-        response2 = requests.post(url, data=payload2, headers=self.appheaders)
-        payload3 = {'task_id': 'share_task'}
-        response3 = requests.post(url, data=payload3, headers=self.appheaders)
-        print("今日每日任务已完成")
+    async def Daily_Task(self):
+        response2 = await bilibili().get_dailytask()
+        json_response2 = await response2.json()
+        Printer().printlist_append(['join_lottery', '', 'user', "双端观看直播:", json_response2["msg"]],True)
 
     # 应援团签到
-    def link_sign(self):
-        url = "https://api.vc.bilibili.com/link_group/v1/member/my_groups"
-        response = requests.get(url,headers=self.pcheaders)
+    async def link_sign(self):
+        response = bilibili().get_grouplist()
         check = len(response.json()['data']['list'])
         group_id_list = []
         owner_uid_list = []
@@ -52,29 +50,88 @@ class Tasks(Login):
             group_id_list.append(group_id)
             owner_uid_list.append(owner_uid)
         for (i1,i2) in zip(group_id_list,owner_uid_list):
-            temp_params = "_device="+self.device+"&_hwid=SX1NL0wuHCsaKRt4BHhIfRguTXxOfj5WN1BkBTdLfhstTn9NfUouFiUV&access_key="+self.access_key+"&appkey="+self.appkey+"&build="+self.build+"&group_id="+str(i1)+"&mobi_app="+self.mobi_app+"&owner_id="+str(i2)+"&platform="+self.platform+"&src=xiaomi&trace_id=20171224024300024&ts="+self.CurrentTime()+"&version=5.20.1.520001"
-            params = temp_params + self.app_secret
-            hash = hashlib.md5()
-            hash.update(params.encode('utf-8'))
-            url = "https://api.vc.bilibili.com/link_setting/v1/link_setting/sign_in?"+temp_params+"&sign="+str(hash.hexdigest())
-            response = requests.get(url,headers=self.appheaders)
-            if (response.json()['data']['status']) == 1:
-                print("应援团 %s 已签到过"  %(i1) )
-            if (response.json()['data']['status']) == 0:
-                print("应援团 %s 签到成功,获得 %s 点亲密度"  %(i1,response.json()['data']['add_num']))
+            response = bilibili().assign_group(i1, i2)
+            if response.json()['code'] == 0:
+                if (response.json()['data']['status']) == 1:
+                    Printer().printlist_append(['join_lottery', '', 'user', "# 应援团 %s 已应援过"  %(i1) ])
+                if (response.json()['data']['status']) == 0:
+                    Printer().printlist_append(['join_lottery', '', 'user', "# 应援团 %s 应援成功,获得 %s 点亲密度"  %(i1, response.json()['data']['add_num'])])
+            else:
+                Printer().printlist_append(['join_lottery', '', 'user',"# 应援团 %s 应援失败" %(i1)])
 
-    # 扭蛋币
-    def redleaf(self):
-        url ="http://live.bilibili.com/redLeaf/kingMoneyGift"
-        response = requests.get(url,headers=self.pcheaders)
-        print("扭蛋币:",response.json()['msg'])
+    async def send_gift(self):
+        if self.dic_user['gift']['on/off'] == '1':
+            argvs,x = await utils.fetch_bag_list(printer=False)
+            for i in range(0,len(argvs)):
+                giftID = argvs[i][0]
+                giftNum = argvs[i][1]
+                bagID = argvs[i][2]
+                roomID = self.dic_user['gift']['send_to_room']
+                await utils.send_gift_web(roomID,giftID,giftNum,bagID)
+            if not argvs:
+                Printer().printlist_append(['join_lottery', '', 'user', "# 没有将要过期的礼物~"])
+
+    async def auto_send_gift(self):
+        if self.dic_user['auto-gift']['on/off'] == "1":
+            a = await utils.fetch_medal(printer=False)
+            res = await bilibili().gift_list()
+            json_res = await res.json()
+            temp_dic = {}
+            for j in range(0, len(json_res['data'])):
+                price = json_res['data'][j]['price']
+                id = json_res['data'][j]['id']
+                temp_dic[id] = price
+            x, temp = await utils.fetch_bag_list(printer=False)
+            roomid = a[0]
+            today_feed = a[1]
+            day_limit = a[2]
+            left_num = int(day_limit) - int(today_feed)
+            calculate = 0
+            for i in range(0,len(temp)):
+                gift_id = int(temp[i][0])
+                gift_num = int(temp[i][1])
+                bag_id = int(temp[i][2])
+                expire = int(temp[i][3])
+                if (gift_id != 4 and gift_id != 3 and gift_id != 9 and gift_id != 10) and expire != 0:
+                    if (gift_num * (temp_dic[gift_id] / 100) < left_num):
+                        calculate = calculate + temp_dic[gift_id] / 100 * gift_num
+                        tmp2 = temp_dic[gift_id] / 100 * gift_num
+                        await utils.send_gift_web(roomid,gift_id,gift_num,bag_id)
+                        left_num = left_num-tmp2
+                    elif left_num - temp_dic[gift_id] / 100 >= 0:
+                        tmp = (left_num) / (temp_dic[gift_id] / 100)
+                        tmp1 = (temp_dic[gift_id] / 100) * int(tmp)
+                        calculate = calculate + tmp1
+                        await utils.send_gift_web(roomid, gift_id, tmp, bag_id)
+                        left_num = left_num - tmp1
+            Printer().printlist_append(['join_lottery', '', 'user', "# 自动送礼共送出亲密度为%s的礼物" % int(calculate)])
+            
+    async def doublegain_coin2silver(self):
+        if self.dic_user['doublegain_coin2silver']['on/off'] == "1":
+            response0 = await bilibili().request_doublegain_coin2silver()
+            json_response0 = await response0.json()
+            response1 = await bilibili().request_doublegain_coin2silver()
+            json_response1 = await response1.json()
+            print(json_response0['msg'], json_response1['msg'])
+
+    async def sliver2coin(self):
+        if self.dic_user['coin']['on/off'] == '1':
+            response = await bilibili().silver2coin_web()
+            response1 = await bilibili().silver2coin_app()
+            json_response = await response.json()
+            json_response1 = await response1.json()
+            Printer().printlist_append(['join_lottery', '', 'user',"# ", json_response['msg']])
+            Printer().printlist_append(['join_lottery', '', 'user', "# ", json_response1['msg']])
 
     async def run(self):
         while 1:
-            print("当前时间:", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-            self.DoSign()
-            self.Daily_bag()
-            self.Daily_Task()
-            self.redleaf()
-            self.link_sign()
+            Printer().printlist_append(['join_lottery', '', 'user', "执行每日任务"], True)
+            await self.sliver2coin()
+            await self.doublegain_coin2silver()
+            await self.DoSign()
+            await self.Daily_bag()
+            await self.Daily_Task()
+            await self.link_sign()
+            await self.send_gift()
+            await self.auto_send_gift()
             await asyncio.sleep(21600)

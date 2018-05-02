@@ -1,75 +1,64 @@
-from login import Login
-import requests
-import hashlib
+from bilibili import bilibili
+from login import login
 import time
 import datetime
 import asyncio
+from printer import Printer
+
+def CurrentTime():
+    currenttime = int(time.mktime(datetime.datetime.now().timetuple()))
+    return str(currenttime)
 
 
-class OnlineHeart(Login):
+class OnlineHeart():
 
-    # 发送pc心跳包 //好像有点bug？？？
-    def pcpost_heartbeat(self):
-        url = 'http://api.live.bilibili.com/User/userOnlineHeart'
-        response = requests.post(url, headers=self.pcheaders)
-        #print(response.json())
+    async def apppost_heartbeat(self):
+        await bilibili().apppost_heartbeat()
 
-    # 发送app心跳包
-    def apppost_heartbeat(self):
-        time = self.CurrentTime()
-        temp_params = 'access_key=' + self.access_key + '&actionKey=' + self.actionKey + '&appkey=' + self.appkey + '&build=' + self.build + '&device=' + self.device + '&mobi_app=' + self.mobi_app + '&platform=' + self.platform + '&ts=' + time
-        params = temp_params + self.app_secret
-        hash = hashlib.md5()
-        hash.update(params.encode('utf-8'))
-        url = 'https://api.live.bilibili.com/mobile/userOnlineHeart?' + temp_params + '&sign=' + str(hash.hexdigest())
-        payload = {'roomid': 23058, 'scale': 'xhdpi'}
-        response = requests.post(url, data=payload, headers=self.appheaders)
-        #print("app端心跳状态：" + response.json()['message'])
+    async def pcpost_heartbeat(self):
+        response = await bilibili().pcpost_heartbeat()
+        return response
 
-    # 心跳礼物   //测试功能
-    def heart_gift(self):
-        url = "https://api.live.bilibili.com/gift/v2/live/heart_gift_receive?roomid=3&area_v2_id=34"
-        response = requests.get(url, headers=self.pcheaders)
-        #print(response.json())
+    async def heart_gift(self):
+        await bilibili().heart_gift()
 
-    # 获取当前系统时间的unix时间戳
-    def CurrentTime(self):
-        currenttime = str(int(time.mktime(datetime.datetime.now().timetuple())))
-        return currenttime
 
     # 因为休眠时间差不多,所以放到这里,此为实验性功能
-    def draw_lottery(self):
-        for i in range(60,100):
-            url = "https://api.live.bilibili.com/lottery/v1/box/getStatus?aid="+str(i)
-            response = requests.get(url,headers=self.pcheaders)
-            res = response.json()
-            if res['code'] == 0:
-                temp = response.json()['data']['title']
-                if "测试" in temp:
-                    print("检测到疑似钓鱼类测试抽奖，默认不参与，请自行判断抽奖可参与性")
-                    print(url)
+    async def draw_lottery(self):
+        black_list = ["测试","test"]
+        for i in range(68,90):
+            response = await bilibili().get_lotterylist(i)
+            json_response = await response.json()
+            if json_response['code'] == 0:
+                temp = json_response['data']['title']
+                for i in black_list:
+                    if i in temp:
+                        print("检测到疑似钓鱼类测试抽奖，默认不参与，请自行判断抽奖可参与性")
                 else:
-                    check = len(response.json()['data']['typeB'])
+                    check = len(json_response['data']['typeB'])
                     for g in range(0, check):
-                        join_end_time = response.json()['data']['typeB'][g]['join_end_time']
-                        join_start_time = response.json()['data']['typeB'][g]['join_start_time']
-                        ts = self.CurrentTime()
+                        join_end_time = json_response['data']['typeB'][g]['join_end_time']
+                        join_start_time = json_response['data']['typeB'][g]['join_start_time']
+                        ts = CurrentTime()
                         if int(join_end_time) > int(ts) > int(join_start_time):
-                            url1 = 'https://api.live.bilibili.com/lottery/v1/box/draw?aid=' + str(i) + '&number=' + str(
-                                g + 1)
-                            response1 = requests.get(url1, headers=self.pcheaders)
+                            response1 = await bilibili().get_gift_of_lottery(i, g)
+                            json_response1 = await response1.json()
                             print("当前时间:", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-                            print("参与抽奖回显：",response1.json())
+                            print("参与实物抽奖回显：",json_response1)
                         else:
-                            break
+                            pass
             else:
                 break
 
     async def run(self):
         while 1:
-            print("当前时间:", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-            self.apppost_heartbeat()
-            self.pcpost_heartbeat()
-            self.heart_gift()
-            self.draw_lottery()
+            Printer().printlist_append(['join_lottery', '', 'user', "心跳"], True)
+            response = await self.pcpost_heartbeat()
+            json_response = await response.json()
+            if json_response['code'] == 3:
+                Printer().printlist_append(['join_lottery', '', 'user', "cookie过期,将重新登录"], True)
+                await login().login()
+            await self.apppost_heartbeat()
+            await self.heart_gift()           
+            await self.draw_lottery()
             await asyncio.sleep(300)

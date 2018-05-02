@@ -1,0 +1,5 @@
+requests
+rsa
+aiohttp
+webcolors
+Pillow
