@@ -1,6 +1,7 @@
 import configparser
 import webcolors
 import codecs
+import getpass
 
 
 def hex_to_rgb_percent(hex_str):
@@ -25,7 +26,7 @@ def load_bilibili(file):
         pass
     else:
         username = input("# 输入帐号: ")
-        password = input("# 输入密码: ")
+        password = getpass.getpass('# 输入密码：')
         cf_bilibili.set('account', 'username', username)
         cf_bilibili.set('account', 'password', password)
         cf_bilibili.write(codecs.open(file, "w+", "utf8"))
