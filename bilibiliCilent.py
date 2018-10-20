@@ -210,12 +210,12 @@ class bilibiliClient():
         elif cmd == 'DANMU_MSG':
             Printer().printer(f"{dic}", "Message", "Cyan", printable=False)
             return
-        elif cmd == 'SYS_GIFT':
-            try:
-                Printer().printer(f"出现了远古的SYS_GIFT,请尽快联系开发者{dic}", "Warning", "red")
-            except:
-                pass
-            return
+#         elif cmd == 'SYS_GIFT':
+#             try:
+#                 Printer().printer(f"出现了远古的SYS_GIFT,请尽快联系开发者{dic}", "Warning", "red")
+#             except:
+#                 pass
+#             return
         elif cmd == 'SYS_MSG':
             if set(self.dic_bulletin) == set(dic):
                 Printer().printer(dic['msg'], "Info", "green")
@@ -279,6 +279,10 @@ class bilibiliClient():
         elif cmd == "PK_START":
             pass
         elif cmd == "SYS_GIFT":
+            pass
+        elif cmd == "RAFFLE_START":           #又多了两个异常指令
+            pass
+        elif cmd == "RAFFLE_END":
             pass
         else:
             Printer().printer(f"出现一个未知msg{dic}", "Info", "red")
