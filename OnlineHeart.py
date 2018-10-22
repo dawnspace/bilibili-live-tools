@@ -34,7 +34,6 @@ class OnlineHeart:
                 if GuardId not in GuardIdReceived:
                     GuardIdReceived.append(GuardId)
                     OriginRoomId = json_response[i]['OriginRoomId']
-                    time.sleep(5)
                     response2 = await bilibili().get_gift_of_captain(OriginRoomId, GuardId)
                     json_response2 = await response2.json()
                     if json_response2['code'] == 0:
@@ -43,6 +42,10 @@ class OnlineHeart:
                     elif json_response2['code'] == 400 and json_response2['msg'] == "你已经领取过啦":
                         Printer().printer(
                             f"房间[{OriginRoomId}]编号[{GuardId}]的上船亲密度已领过",
+                            "Info", "green")
+                    elif json_response2['code'] == 400 and json_response2['msg'] == "访问被拒绝":
+                        Printer().printer(
+                            f"跳过上船亲密度领取异常的反馈.",
                             "Info", "green")
                     else:
                         Printer().printer(
