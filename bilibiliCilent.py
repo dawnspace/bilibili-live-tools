@@ -11,7 +11,7 @@ import sys
 
 
 async def handle_1_TV_raffle(type, num, real_roomid, raffleid):
-    await asyncio.sleep(random.uniform(1, 2))
+    await asyncio.sleep(random.uniform(1.5, 2.5))
     response2 = await bilibili().get_gift_of_TV(type, real_roomid, raffleid)
     Printer().printer(f"参与了房间 {real_roomid} 的广播抽奖", "Lottery", "blue")
     json_response2 = await response2.json()
