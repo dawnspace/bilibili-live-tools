@@ -3,3 +3,5 @@ _conf/
 *.iml
 *.xml
 *.pyc
+log.txt
+__pycache__/
