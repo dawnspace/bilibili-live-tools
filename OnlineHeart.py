@@ -32,22 +32,25 @@ class OnlineHeart:
         for i in range(0, len(json_response)):
             if json_response[i]['Status']:
                 GuardId = json_response[i]['GuardId']
-                if GuardId not in had_gotted_guard:
-                    had_gotted_guard.append(GuardId)
-                    OriginRoomId = json_response[i]['OriginRoomId']
-                    response2 = await bilibili().get_gift_of_captain(OriginRoomId, GuardId)
-                    json_response2 = await response2.json(content_type=None)
-                    if json_response2['code'] == 0:
-                        Printer().printer(f"获取到房间[{OriginRoomId}]编号[{GuardId}]的上船亲密度:{json_response2['data']['message']}",
-                                          "Lottery", "cyan")
-                    elif json_response2['code'] == 400 and json_response2['msg'] == "你已经领取过啦":
-                        Printer().printer(
-                            f"房间[{OriginRoomId}]编号[{GuardId}]的上船亲密度已领过",
-                            "Info", "green")
-                    else:
-                        Printer().printer(
-                            f"房间[{OriginRoomId}]编号[{GuardId}] 的上船亲密度领取出错,{json_response2}",
-                            "Error", "red")
+                if GuardId == 0:            #屏蔽GuardId=0
+                    pass
+                else:
+                    if GuardId not in had_gotted_guard:
+                        had_gotted_guard.append(GuardId)
+                        OriginRoomId = json_response[i]['OriginRoomId']
+                        response2 = await bilibili().get_gift_of_captain(OriginRoomId, GuardId)
+                        json_response2 = await response2.json(content_type=None)
+                        if json_response2['code'] == 0:
+                            Printer().printer(f"获取到房间[{OriginRoomId}]编号[{GuardId}]的上船亲密度:{json_response2['data']['message']}",
+                                                  "Lottery", "cyan")
+                        elif json_response2['code'] == 400 and json_response2['msg'] == "你已经领取过啦":
+                            Printer().printer(
+                                    f"房间[{OriginRoomId}]编号[{GuardId}]的上船亲密度已领过",
+                                    "Info", "green")
+                        else:
+                            Printer().printer(
+                                    f"房间[{OriginRoomId}]编号[{GuardId}] 的上船亲密度领取出错,{json_response2}",
+                                    "Error", "red")
             else:
                 pass
 
