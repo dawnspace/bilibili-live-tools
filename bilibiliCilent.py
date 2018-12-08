@@ -227,6 +227,21 @@ class bilibiliClient():
                 except:
                     print('SYS_MSG出错，请联系开发者', dic)
             return
+        elif cmd == "HOUR_RANK_AWARDS":                  #小时榜
+            data = dic['data']
+            if dic['action']=="all_top3":
+                uname=data["uname"]
+                Printer().printer(f"恭喜主播 {uname} 获得超人气推荐奖励！", "Info", "green")
+            elif dic['action']=="area_top1":
+                title=data["title"]
+                award_desc = data["award_desc"]
+                Printer().printer(f"{title}+\n+{award_desc}", "Info", "green")
+            else:
+                Printer().printer(f"出现一个未知msg{dic}", "Info", "red")
+        elif cmd =="new_anchor_reward":
+            roomid = dic['roomid']
+            uid = dic['uid']
+            Printer().printer(f"恭喜房间{roomid}主播{uid}获得新人主播！", "Info", "green")      
         elif cmd == "WELCOME":
             pass
         elif cmd == "SEND_GIFT":
