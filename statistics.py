@@ -56,12 +56,10 @@ class Statistics:
         del self.TV_raffleid_list[0]
 
     async def clean_TV(self):
-        printlist = []
-
         if self.TV_raffleid_list:
             for i in range(0, len(self.TV_roomid_list)):
 
-                response = await  bilibili().get_TV_result(self.TV_roomid_list[0], self.TV_raffleid_list[0])
+                response = await  bilibili().get_TV_result(self.TV_raffleid_list[0])
                 json_response = await response.json()
                 try:
 
@@ -73,8 +71,9 @@ class Statistics:
                                               "Lottery", "cyan")
                     else:
                         data = json_response['data']
-                        Printer().printer(f"房间 {self.TV_roomid_list[0]} 广播道具抽奖结果: {data['gift_name']}X{data['gift_num']}",
-                                          "Lottery", "cyan")
+                        Printer().printer(
+                            f"房间 {self.TV_roomid_list[0]} 广播道具抽奖结果: {data['gift_name']}X{data['gift_num']}",
+                            "Lottery", "cyan")
                         self.add_to_result(data['gift_name'], int(data['gift_num']))
 
                     self.delete_0st_TVlist()
@@ -98,11 +97,13 @@ class Statistics:
                     if area_sum in [1, self.total_area]:
                         pass
                     elif area_sum == 2:
-                        to_check = [self.total_area-index for index in range(self.total_area) if check_int[index] == 1]
+                        to_check = [self.total_area - index for index in range(self.total_area) if
+                                    check_int[index] == 1]
                         Printer().printer(f"发现监控重复 {to_check}", "Info", "green")
                         await utils.check_area_list(to_check)
-                    elif area_sum == self.total_area-1:
-                        to_check = [self.total_area-index for index in range(self.total_area) if check_int[index] == 0]
+                    elif area_sum == self.total_area - 1:
+                        to_check = [self.total_area - index for index in range(self.total_area) if
+                                    check_int[index] == 0]
                         Printer().printer(f"发现监控缺失 {to_check}", "Info", "green")
                         await utils.check_area_list(to_check)
                     else:
@@ -113,14 +114,14 @@ class Statistics:
                 finally:
                     del self.monitor[roomid]
 
-    def append_to_TVlist(self, raffleid, real_roomid, time=''):
+    def append_to_TVlist(self, raffleid, real_roomid):
         self.TV_raffleid_list.append(raffleid)
         self.TV_roomid_list.append(real_roomid)
         self.joined_TV.append(decimal_time())
 
     def append2pushed_TVlist(self, real_roomid, area_id):
         self.pushed_TV.append(decimal_time())
-        self.monitor[real_roomid] = self.monitor.get(real_roomid, 0) | 2**(int(area_id)-1)
+        self.monitor[real_roomid] = self.monitor.get(real_roomid, 0) | 2 ** (int(area_id) - 1)
 
     def check_TVlist(self, raffleid):
         if raffleid not in self.TV_raffleid_list:

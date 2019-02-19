@@ -48,7 +48,7 @@ def controler():
             options.get(x, return_error)()
 
 
-class Biliconsole():
+class Biliconsole:
     instance = None
 
     def __new__(cls, *args, **kw):

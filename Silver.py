@@ -13,7 +13,7 @@ class Silver:
         return datatime
 
     # 领瓜子时判断领取周期的参数
-    async def time_start(self):
+    @staticmethod async def time_start():
 
         response = await bilibili().get_time_about_silver()
         temp = await response.json()
@@ -24,7 +24,7 @@ class Silver:
             return str(time_start)
 
     # 领瓜子时判断领取周期的参数
-    async def time_end(self):
+    @staticmethod async def time_end():
         try:
             response = await bilibili().get_time_about_silver()
             temp = await response.json()
@@ -48,7 +48,7 @@ class Silver:
         while 1:
             Printer().printer(f"检查宝箱状态", "Info", "green")
             temp = await self.GetAward()
-            if temp == None or temp == -10017:
+            if temp is None or temp == -10017:
                 await asyncio.sleep(utils.seconds_until_tomorrow() + 300)
             elif temp == 0:
                 Printer().printer(f"打开了宝箱", "Info", "green")

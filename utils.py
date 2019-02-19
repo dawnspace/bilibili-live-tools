@@ -38,7 +38,7 @@ def seconds_until_tomorrow():
 
 async def fetch_medal(printer=True):
     if printer:
-        Printer().printer('查询勋章信息',"Info","green")
+        Printer().printer('查询勋章信息', "Info", "green")
         print(
             '{} {} {:^12} {:^10} {} {:^6} '.format(adjust_for_chinese('勋章'), adjust_for_chinese('主播昵称'), '亲密度',
                                                    '今日的亲密度',
@@ -72,10 +72,11 @@ async def fetch_user_info():
     print('[{}] 查询用户信息'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
     json_response = await response.json()
     json_response_ios = await response_ios.json()
+    gold_ios = None
     if json_response_ios['code'] == 0:
         gold_ios = json_response_ios['data']['gold']
     # print(json_response_ios)
-    if (json_response['code'] == 0):
+    if json_response['code'] == 0:
         data = json_response['data']
         # print(data)
         userInfo = data['userInfo']
@@ -117,7 +118,7 @@ async def fetch_bag_list(verbose=False, bagid=None, printer=True):
     temp = []
     gift_list = []
     json_response = await response.json()
-    if printer == True:
+    if printer:
         print('[{}] 查询可用礼物'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
     for i in range(len(json_response['data']['list'])):
         bag_id = (json_response['data']['list'][i]['bag_id'])
@@ -138,9 +139,9 @@ async def fetch_bag_list(verbose=False, bagid=None, printer=True):
                 return gift_id
         else:
             if verbose:
-                print("# 编号为" + str(bag_id) + '的' + gift_name + 'X' + gift_num, '(在' + str((left_days)) + '天后过期)')
-            elif printer == True:
-                print("# " + gift_name + 'X' + gift_num, '(在' + str((left_days)) + '天后过期)')
+                print("# 编号为" + str(bag_id) + '的' + gift_name + 'X' + gift_num, '(在' + str(left_days) + '天后过期)')
+            elif printer:
+                print("# " + gift_name + 'X' + gift_num, '(在' + str(left_days) + '天后过期)')
 
         if 0 < int(left_time) < 43200:  # 剩余时间少于半天时自动送礼
             temp.append([gift_id, gift_num, bag_id, expireat])
@@ -209,9 +210,10 @@ async def send_gift_web(roomid, giftid, giftnum, bagid):
     response1 = await bilibili().request_send_gift_web(giftid, giftnum, bagid, ruid, biz_id)
     json_response1 = await response1.json()
     if json_response1['code'] == 0:
-        Printer().printer(f"送出礼物{json_response1['data']['gift_name']}x{json_response1['data']['gift_num']}","Info","green")
+        Printer().printer(f"送出礼物{json_response1['data']['gift_name']}x{json_response1['data']['gift_num']}", "Info",
+                          "green")
     else:
-        Printer().printer(f"错误:{json_response1['msg']}","Error","red")
+        Printer().printer(f"错误:{json_response1['msg']}", "Error", "red")
 
 
 async def check_room_true(roomid):

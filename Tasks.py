@@ -17,30 +17,35 @@ class Tasks:
         self.dic_user = configloader.load_user(file_user)
 
     # 获取每日包裹奖励
-    async def Daily_bag(self):
+    @staticmethod
+    async def Daily_bag():
         response = await bilibili().get_dailybag()
         json_response = await response.json()
         for i in range(0, len(json_response['data']['bag_list'])):
             Printer().printer(f"获得-{json_response['data']['bag_list'][i]['bag_name']}-成功", "Info", "green")
 
-    def CurrentTime(self):
+    @staticmethod
+    def CurrentTime():
         currenttime = str(int(time.mktime(datetime.datetime.now().timetuple())))
         return currenttime
 
     # 签到功能
-    async def DoSign(self):
+    @staticmethod
+    async def DoSign():
         response = await bilibili().get_dosign()
         temp = await response.json(content_type=None)
         Printer().printer(f"签到状态:{temp['msg']}", "Info", "green")
 
     # 领取每日任务奖励
-    async def Daily_Task(self):
+    @staticmethod
+    async def Daily_Task():
         response2 = await bilibili().get_dailytask()
         json_response2 = await response2.json()
         Printer().printer(f"双端观看直播:{json_response2['msg']}", "Info", "green")
 
     # 应援团签到
-    async def link_sign(self):
+    @staticmethod
+    async def link_sign():
         response = await bilibili().get_grouplist()
         json_response = await response.json(content_type=None)
         check = len(json_response['data']['list'])
@@ -96,13 +101,13 @@ class Tasks:
                 bag_id = int(temp[i][2])
                 expire = int(temp[i][3])
                 if (gift_id != 4 and gift_id != 3 and gift_id != 9 and gift_id != 10) and expire != 0:
-                    if (gift_num * (temp_dic[gift_id] / 100) < left_num):
+                    if gift_num * (temp_dic[gift_id] / 100) < left_num:
                         calculate = calculate + temp_dic[gift_id] / 100 * gift_num
                         tmp2 = temp_dic[gift_id] / 100 * gift_num
                         await utils.send_gift_web(roomid, gift_id, gift_num, bag_id)
                         left_num = left_num - tmp2
                     elif left_num - temp_dic[gift_id] / 100 >= 0:
-                        tmp = (left_num) / (temp_dic[gift_id] / 100)
+                        tmp = left_num / (temp_dic[gift_id] / 100)
                         tmp1 = (temp_dic[gift_id] / 100) * int(tmp)
                         calculate = calculate + tmp1
                         await utils.send_gift_web(roomid, gift_id, tmp, bag_id)

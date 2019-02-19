@@ -21,7 +21,7 @@ def CurrentTime():
     return str(currenttime)
 
 
-class bilibili():
+class bilibili:
     instance = None
 
     def __new__(cls, *args, **kw):
@@ -56,26 +56,29 @@ class bilibili():
         sign = hash.hexdigest()
         return sign
 
-    def cnn_captcha(self, img):
+    @staticmethod
+    def cnn_captcha(img):
         url = "http://zerozhushou.com:11001/captcha/v1"
         img = str(img, encoding='utf-8')
         json = {"image": img}
         ressponse = requests.post(url, json=json)
         captcha = ressponse.json()
-        Printer().printer(f"此次登录出现验证码,识别结果为{captcha['message']}","Info","green")
+        Printer().printer(f"此次登录出现验证码,识别结果为{captcha['message']}", "Info", "green")
         return captcha['message']
 
-    def calc_name_passw(self, key, Hash, username, password):
+    @staticmethod
+    def calc_name_passw(key, Hash, username, password):
         pubkey = rsa.PublicKey.load_pkcs1_openssl_pem(key.encode())
         password = base64.b64encode(rsa.encrypt((Hash + password).encode('utf-8'), pubkey))
         password = parse.quote_plus(password)
         username = parse.quote_plus(username)
         return username, password
 
-    async def replay_request(self, response):
+    @staticmethod
+    async def replay_request(response):
         json_response = await response.json(content_type=None)
         if json_response['code'] == 1024:
-            Printer().printer(f'b站炸了,暂停所有请求5s后重试,请耐心等待',"Error","red")
+            Printer().printer(f'b站炸了,暂停所有请求5s后重试,请耐心等待', "Error", "red")
             await asyncio.sleep(5)
             return True
         else:
@@ -199,7 +202,8 @@ class bilibili():
         response = await self.bili_section_get(url)
         return response
 
-    def request_load_img(self, url):
+    @staticmethod
+    def request_load_img(url):
         return requests.get(url)
 
     async def request_fetchmedal(self):
@@ -238,8 +242,7 @@ class bilibili():
             'actionKey'] + '&appkey=' + self.dic_bilibili['appkey'] + '&build=' + self.dic_bilibili[
                           'build'] + '&device=' + self.dic_bilibili['device'] + '&event_type=' + str(
             raffleid) + '&mobi_app=' + self.dic_bilibili['mobi_app'] + '&platform=' + self.dic_bilibili[
-                          'platform'] + '&room_id=' + str(
-            text1) + '&ts=' + CurrentTime()
+                          'platform'] + '&room_id=' + str(text1) + '&ts=' + CurrentTime()
         params = temp_params + self.dic_bilibili['app_secret']
         sign = self.calc_sign(temp_params)
         true_url = 'https://api.live.bilibili.com/YunYing/roomEvent?' + temp_params + '&sign=' + sign
@@ -265,21 +268,14 @@ class bilibili():
         return response2
 
     async def get_giftlist_of_events(self, text1):
-        headers = {
-            'Accept': 'application/json, text/plain, */*',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'accept-encoding': 'gzip, async deflate',
-            'Host': 'api.live.bilibili.com',
-        }
         # url = f'{base_url}/activity/v1/Raffle/check?roomid={text1}'
         temp_params = 'access_key=' + self.dic_bilibili['access_key'] + '&actionKey=' + self.dic_bilibili[
             'actionKey'] + '&appkey=' + self.dic_bilibili['appkey'] + '&build=' + self.dic_bilibili[
-                          'build'] + '&device=' + self.dic_bilibili['device'] + '&mobi_app=' + self.dic_bilibili['mobi_app'] + '&platform=' + self.dic_bilibili[
-                          'platform'] + '&roomid=' + str(
+                          'build'] + '&device=' + self.dic_bilibili['device'] + '&mobi_app=' + self.dic_bilibili[
+                          'mobi_app'] + '&platform=' + self.dic_bilibili['platform'] + '&roomid=' + str(
             text1) + '&ts=' + CurrentTime()
         sign = self.calc_sign(temp_params)
-        url = "https://api.live.bilibili.com/activity/v1/Common/mobileRoomInfo?"+temp_params+"&sign="+sign
+        url = "https://api.live.bilibili.com/activity/v1/Common/mobileRoomInfo?" + temp_params + "&sign=" + sign
         response = await bilibili.instance.bili_section_get(url, headers=self.dic_bilibili['appheaders'])
         # url = 'https://api.live.bilibili.com/activity/v1/Raffle/check?roomid=' + str(text1)
         # response = await self.bili_section_get(url, headers=headers)
@@ -330,7 +326,7 @@ class bilibili():
         response = await self.bili_section_get(url, headers=headers)
         return response
 
-    async def get_TV_result(self, TV_roomid, TV_raffleid):
+    async def get_TV_result(self, TV_raffleid):
         url = "https://api.live.bilibili.com/gift/v3/smalltv/notice?raffleId=" + str(TV_raffleid)
         headers = {
             'Accept': 'application/json, text/plain, */*',
@@ -350,11 +346,10 @@ class bilibili():
 
     # 发送app心跳包
     async def apppost_heartbeat(self):
-        time = CurrentTime()
         temp_params = 'access_key=' + self.dic_bilibili['access_key'] + '&actionKey=' + self.dic_bilibili[
             'actionKey'] + '&appkey=' + self.dic_bilibili['appkey'] + '&build=' + self.dic_bilibili[
                           'build'] + '&device=' + self.dic_bilibili['device'] + '&mobi_app=' + self.dic_bilibili[
-                          'mobi_app'] + '&platform=' + self.dic_bilibili['platform'] + '&ts=' + time
+                          'mobi_app'] + '&platform=' + self.dic_bilibili['platform'] + '&ts=' + CurrentTime()
         sign = self.calc_sign(temp_params)
         url = 'https://api.live.bilibili.com/mobile/userOnlineHeart?' + temp_params + '&sign=' + sign
         payload = {'roomid': 23058, 'scale': 'xhdpi'}
@@ -386,23 +381,21 @@ class bilibili():
         return response1
 
     async def get_time_about_silver(self):
-        time = CurrentTime()
         temp_params = 'access_key=' + self.dic_bilibili['access_key'] + '&actionKey=' + self.dic_bilibili[
             'actionKey'] + '&appkey=' + self.dic_bilibili['appkey'] + '&build=' + self.dic_bilibili[
                           'build'] + '&device=' + self.dic_bilibili['device'] + '&mobi_app=' + self.dic_bilibili[
-                          'mobi_app'] + '&platform=' + self.dic_bilibili['platform'] + '&ts=' + time
+                          'mobi_app'] + '&platform=' + self.dic_bilibili['platform'] + '&ts=' + CurrentTime()
         sign = self.calc_sign(temp_params)
         GetTask_url = 'https://api.live.bilibili.com/mobile/freeSilverCurrentTask?' + temp_params + '&sign=' + sign
         response = await self.bili_section_get(GetTask_url, headers=self.dic_bilibili['appheaders'])
         return response
 
     async def get_silver(self, timestart, timeend):
-        time = CurrentTime()
         temp_params = 'access_key=' + self.dic_bilibili['access_key'] + '&actionKey=' + self.dic_bilibili[
             'actionKey'] + '&appkey=' + self.dic_bilibili['appkey'] + '&build=' + self.dic_bilibili[
                           'build'] + '&device=' + self.dic_bilibili['device'] + '&mobi_app=' + self.dic_bilibili[
                           'mobi_app'] + '&platform=' + self.dic_bilibili[
-                          'platform'] + '&time_end=' + timeend + '&time_start=' + timestart + '&ts=' + time
+                          'platform'] + '&time_end=' + timeend + '&time_start=' + timestart + '&ts=' + CurrentTime()
         sign = self.calc_sign(temp_params)
         url = 'https://api.live.bilibili.com/mobile/freeSilverAward?' + temp_params + '&sign=' + sign
         response = await self.bili_section_get(url, headers=self.dic_bilibili['appheaders'])

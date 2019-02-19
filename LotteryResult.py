@@ -2,9 +2,9 @@ from statistics import Statistics
 import asyncio
 
 
-class LotteryResult():
+class LotteryResult:
 
-    async def query(self):
+    @staticmethod async def query():
         while 1:
             await Statistics().clean_TV()
 

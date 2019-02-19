@@ -5,9 +5,10 @@ import configloader
 import requests
 
 
-class login():
+class login:
 
-    def normal_login(self, username, password):
+    @staticmethod
+    def normal_login(username, password):
         # url = 'https://passport.bilibili.com/api/oauth2/login'   //旧接口
         url = "https://passport.bilibili.com/api/v2/oauth2/login"
         temp_params = 'appkey=' + bilibili().dic_bilibili['appkey'] + '&password=' + password + '&username=' + username
@@ -18,7 +19,8 @@ class login():
         response = requests.post(url, data=payload, headers=headers)
         return response
 
-    def login_with_captcha(self, username, password):
+    @staticmethod
+    def login_with_captcha(username, password):
         headers = {
             'Accept': 'application/json, text/plain, */*',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36',

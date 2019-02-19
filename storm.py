@@ -1,5 +1,4 @@
 import requests
-import time
 
 cookies = ''
 token = ''
@@ -25,6 +24,7 @@ def storm():
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36',
                 'cookie': cookies,
             }
+            temp = None
             try:
                 url = 'http://api.live.bilibili.com/lottery/v1/Storm/check?roomid=' + str(i)
                 response = requests.get(url, headers=headers)

@@ -48,7 +48,7 @@ async def handle_1_room_TV(real_roomid):
             await asyncio.wait(tasklist, return_when=asyncio.ALL_COMPLETED)
 
 
-class bilibiliClient():
+class bilibiliClient:
 
     def __init__(self, roomid, area):
         self.bilibili = bilibili()
@@ -80,7 +80,7 @@ class bilibiliClient():
             return
         self._reader = reader
         self._writer = writer
-        if (await self.SendJoinChannel(self._roomId) == True):
+        if await self.SendJoinChannel(self._roomId):
             self.connected = True
             Printer().printer(f'[{self.area}分区] 连接 {self._roomId} 弹幕服务器成功', "Info", "green")
             await self.ReceiveMessageLoop()
@@ -94,7 +94,7 @@ class bilibiliClient():
             await asyncio.sleep(30)
 
     async def SendJoinChannel(self, channelId):
-        self._uid = (int)(100000000000000.0 + 200000000000000.0 * random.random())
+        self._uid = int(100000000000000.0 + 200000000000000.0 * random.random())
         body = '{"roomid":%s,"uid":%s}' % (channelId, self._uid)
         await self.SendSocketData(0, 16, self.bilibili.dic_bilibili['_protocolversion'], 7, 1, body)
         return True
@@ -158,7 +158,7 @@ class bilibiliClient():
         return bytes_data
 
     async def ReceiveMessageLoop(self):
-        while self.connected == True:
+        while self.connected:
             tmp = await self.ReadSocketData(16)
             if tmp is None:
                 break

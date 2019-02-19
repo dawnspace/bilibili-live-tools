@@ -6,7 +6,7 @@ TIME = 3600
 CMD = "run.py"
 
 
-class Auto_Run():
+class Auto_Run:
     def __init__(self, sleep_time, cmd):
         if sys.version_info < (3, 6):
             print("only support python 3.6 and later version")
@@ -29,8 +29,8 @@ class Auto_Run():
                 else:
                     print("starting......")
                     self.run()
-        except KeyboardInterrupt as e:
-            print("exit???")
+        except KeyboardInterrupt:
+            print("Do you want to exit?")
 
     def run(self):
         if self.ext == ".py":

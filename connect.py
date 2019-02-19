@@ -6,7 +6,7 @@ from bilibiliCilent import bilibiliClient
 from printer import Printer
 
 
-class connect():
+class connect:
     instance = None
     areas = []
     roomids = []
