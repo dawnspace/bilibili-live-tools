@@ -26,7 +26,7 @@ async def handle_1_room_TV(real_roomid):
     await asyncio.sleep(random.uniform(0, 1))
     result = await utils.check_room_true(real_roomid)
     if True in result:
-        Printer().printer(f"检测到房间 {real_roomid} 的钓鱼操作", "Warning", "red")
+        Printer().printer(f"检测到房间 {real_roomid} 的钓鱼操作", "Warning", "yellow")
     else:
         await bilibili().post_watching_history(real_roomid)
         response = await bilibili().get_giftlist_of_TV(real_roomid)
@@ -142,7 +142,7 @@ class bilibiliClient():
                 return None
             except:
                 Printer().printer(f"{sys.exc_info()[0]}, {sys.exc_info()[1]} @[{self.area}分区]{self._roomId}","Error","red")
-                Printer().printer(f'请联系开发者',"Warning","red")
+                Printer().printer(f'请联系开发者', "Warning", "yellow")
                 self.close_connection()
                 return None
 
@@ -214,7 +214,7 @@ class bilibiliClient():
             # Printer().printer(f"{dic}", "Message", "cyan", printable=False)
             pass
         elif cmd == 'SYS_GIFT':
-            # Printer().printer(f"出现了远古的SYS_GIFT,请尽快联系开发者{dic}", "Warning", "red")
+            # Printer().printer(f"出现了远古的SYS_GIFT,请尽快联系开发者{dic}", "Warning", "yellow")
             pass
         elif cmd == 'SYS_MSG':
             if set(dic) in [set(self.dic_bulletin), {'cmd', 'msg', 'msg_text'}, {'cmd', 'msg', 'url'}]:
@@ -226,7 +226,7 @@ class bilibiliClient():
                     Rafflehandler().append2list_TV(real_roomid)
                     Statistics().append2pushed_TVlist(real_roomid, self.area[0])
                 except:
-                    Printer().printer(f"SYS_MSG出错，请联系开发者 {dic}", "Warning", "red")
+                    Printer().printer(f"SYS_MSG出错，请联系开发者 {dic}", "Warning", "yellow")
 
         # 观众相关 [欢迎入场，送礼，发弹幕]
         elif cmd in ["WELCOME", "SEND_GIFT", "DANMU_MSG"]:
@@ -267,5 +267,5 @@ class bilibiliClient():
         elif cmd in ["CHANGE_ROOM_INFO", "WISH_BOTTLE", "BOX_ACTIVITY_START"]:
             pass
         else:
-            Printer().printer(f"出现一个未知msg @[{self.area}分区]{self._roomId} {dic}", "Warning", "red")
+            Printer().printer(f"出现一个未知msg @[{self.area}分区]{self._roomId} {dic}", "Warning", "yellow")
             pass

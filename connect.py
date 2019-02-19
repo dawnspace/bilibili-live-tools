@@ -49,8 +49,8 @@ class connect():
                     task2 = item[1]
                     if task1.done() == True or task2.done() == True:
                         area = connect.areas[connect.roomids.index(roomid)]
-                        Printer().printer(f"[{area}分区] 房间 {roomid} 任务出现异常", "Info", "green")
-                        await self.check_area(roomid=roomid, area=area, mandatory_recreate=True)
+                        Printer().printer(f"[{area}分区] 房间 {roomid} 任务出现异常", "Warning", "yellow")
+                        await self.check_area(roomid=roomid, area=area, mandatory_recreate=False)
                     else:
                         # Printer().printer(f"[{area}分区] 房间 {roomid} 任务保持正常", "Info", "green")
                         pass

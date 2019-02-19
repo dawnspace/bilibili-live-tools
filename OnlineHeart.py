@@ -48,7 +48,7 @@ class OnlineHeart:
                     if not OriginRoomId == OnlineHeart.last_guard_room:
                         result = await utils.check_room_true(OriginRoomId)
                         if True in result:
-                            Printer().printer(f"检测到房间 {OriginRoomId} 的钓鱼操作", "Warning", "red")
+                            Printer().printer(f"检测到房间 {OriginRoomId} 的钓鱼操作", "Warning", "yellow")
                             continue
                         await bilibili().post_watching_history(OriginRoomId)
                         OnlineHeart.last_guard_room = OriginRoomId
@@ -94,7 +94,7 @@ class OnlineHeart:
                         for k in black_list:
                             if k in title or k in jp_list:
                                 Printer().printer(f"检测到 {i} 号疑似钓鱼类测试抽奖『{title}>>>{jp_list}』" + \
-                                                   "，默认不参与，请自行判断抽奖可参与性","Warning","red")
+                                                  "，默认不参与，请自行判断抽奖可参与性", "Warning", "yellow")
                                 break
                         else:
                             response1 = await bilibili().get_gift_of_lottery(i, g)
