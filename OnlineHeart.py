@@ -71,7 +71,7 @@ class OnlineHeart:
                         print(json_response2)
                     else:
                         Printer().printer(
-                            f"房间 {OriginRoomId} 编号 {GuardId}  的上船亲密度领取出错: {json_response2}",
+                            f"房间 {OriginRoomId} 编号 {GuardId}  的上船亲密度领取出错: {json_response2['message']}",
                             "Error", "red")
             else:
                 pass
