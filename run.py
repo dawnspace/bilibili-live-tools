@@ -9,8 +9,10 @@ from login import login
 from printer import Printer
 from statistics import Statistics
 from bilibili import bilibili
-import threading
-import biliconsole
+
+# import threading
+# import biliconsole
+
 
 loop = asyncio.get_event_loop()
 loop1 = asyncio.get_event_loop()
@@ -18,7 +20,7 @@ printer = Printer()
 bilibili()
 Statistics()
 rafflehandler = Rafflehandler()
-biliconsole.Biliconsole()
+# biliconsole.Biliconsole()
 
 task = OnlineHeart()
 task1 = Silver()
@@ -26,9 +28,9 @@ task2 = Tasks()
 task3 = LotteryResult()
 task4 = connect()
 
-console_thread = threading.Thread(target=biliconsole.controler)
+# console_thread = threading.Thread(target=biliconsole.controler)
 
-console_thread.start()
+# console_thread.start()
 
 tasks1 = [
     login().login_new()
@@ -39,7 +41,7 @@ tasks = [
     task.run(),
     task1.run(),
     task2.run(),
-    biliconsole.Biliconsole().run(),
+    # biliconsole.Biliconsole().run(),
     task4.create(),
     task3.query(),
     rafflehandler.run()
@@ -47,6 +49,6 @@ tasks = [
 ]
 
 loop.run_until_complete(asyncio.wait(tasks))
-console_thread.join()
+# console_thread.join()
 
 loop.close()
