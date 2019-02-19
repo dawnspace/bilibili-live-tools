@@ -18,17 +18,21 @@ def CurrentTime():
 class OnlineHeart:
     last_guard_room = 0
 
-    @staticmethod async def apppost_heartbeat():
+    @staticmethod
+    async def apppost_heartbeat():
         await bilibili().apppost_heartbeat()
 
-    @staticmethod async def pcpost_heartbeat():
+    @staticmethod
+    async def pcpost_heartbeat():
         response = await bilibili().pcpost_heartbeat()
         return response
 
-    @staticmethod async def heart_gift():
+    @staticmethod
+    async def heart_gift():
         await bilibili().heart_gift()
 
-    @staticmethod async def guard_lottery():
+    @staticmethod
+    async def guard_lottery():
         for k in range(3):
             try:
                 response = await bilibili().guard_list()
@@ -72,8 +76,8 @@ class OnlineHeart:
             else:
                 pass
 
-
-    @staticmethod async def draw_lottery():
+    @staticmethod
+    async def draw_lottery():
         black_list = ["123", "1111", "测试", "測試", "测一测", "ce-shi", "test", "T-E-S-T", "lala",  # 已经出现
                       "測一測", "TEST", "Test", "t-e-s-t"]  # 合理猜想
         last_lottery = 0

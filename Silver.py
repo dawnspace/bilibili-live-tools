@@ -13,7 +13,8 @@ class Silver:
         return datatime
 
     # 领瓜子时判断领取周期的参数
-    @staticmethod async def time_start():
+    @staticmethod
+    async def time_start():
 
         response = await bilibili().get_time_about_silver()
         temp = await response.json()
@@ -24,7 +25,8 @@ class Silver:
             return str(time_start)
 
     # 领瓜子时判断领取周期的参数
-    @staticmethod async def time_end():
+    @staticmethod
+    async def time_end():
         try:
             response = await bilibili().get_time_about_silver()
             temp = await response.json()

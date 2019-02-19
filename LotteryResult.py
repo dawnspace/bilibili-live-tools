@@ -4,7 +4,8 @@ import asyncio
 
 class LotteryResult:
 
-    @staticmethod async def query():
+    @staticmethod
+    async def query():
         while 1:
             await Statistics().clean_TV()
 

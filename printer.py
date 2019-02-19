@@ -25,7 +25,7 @@ class Printer:
         msg = ("{:<22}{:<10}{:<20}".format(self.current_time(), "[" + str(_type) + "]", str(_msg)))
         cprint(msg, _color)
         if log:
-            log_file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'log', 'log.log')
+            log_file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'log.txt')
             with open(log_file, "a+", encoding="utf-8")as f:
                 print(msg, file=f, flush=True)  # f.write(msg + "\n")
 
