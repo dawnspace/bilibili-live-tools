@@ -67,8 +67,7 @@ class OnlineHeart:
                             "Info", "green")
                     elif json_response2['code'] == 400 and json_response2['msg'] == "访问被拒绝":
                         Printer().printer(f"获取房间 {OriginRoomId} 编号 {GuardId} 的上船亲密度: {json_response2['message']}",
-                                          "Lottery", "cyan")
-                        print(json_response2)
+                                          "Error", "red")
                     else:
                         Printer().printer(
                             f"房间 {OriginRoomId} 编号 {GuardId}  的上船亲密度领取出错: {json_response2['message']}",
