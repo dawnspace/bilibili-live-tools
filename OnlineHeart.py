@@ -6,7 +6,7 @@ import traceback
 import datetime
 import asyncio
 from printer import Printer
-
+import random
 
 had_gotted_guard = []
 
@@ -69,9 +69,9 @@ class OnlineHeart:
                         Printer().printer(
                             f"房间 {OriginRoomId} 编号 {GuardId}  的上船亲密度领取出错: {json_response2}",
                             "Error", "red")
+                await asyncio.sleep(random.randint(0, 3))
             else:
                 pass
-
 
     async def draw_lottery(self):
         black_list = ["123", "1111", "测试", "測試", "测一测", "ce-shi", "test", "T-E-S-T", "lala",  # 已经出现
