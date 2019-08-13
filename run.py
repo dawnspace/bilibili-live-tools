@@ -21,12 +21,14 @@ Statistics()
 rafflehandler = Rafflehandler()
 biliconsole.Biliconsole()
 
-task = OnlineHeart()
+# 关闭上船功能
+# task = OnlineHeart()
 task1 = Silver()
 task2 = Tasks()
 task3 = LotteryResult()
 task4 = connect()
-task5 = PKLottery()
+# 关闭PK功能
+# task5 = PKLottery()
 
 console_thread = threading.Thread(target=biliconsole.controler)
 
