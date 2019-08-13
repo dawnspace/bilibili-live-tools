@@ -6,6 +6,7 @@ import traceback
 import os
 import configloader
 import utils
+import requests
 from printer import Printer
 
 
@@ -13,8 +14,8 @@ class Tasks:
 
     def __init__(self):
         fileDir = os.path.dirname(os.path.realpath('__file__'))
-        file_user = fileDir + "/conf/user.conf"
-        self.dic_user = configloader.load_user(file_user)
+        self.dic_user = configloader.load_user(fileDir + "/conf/user.conf")
+        self.user_name = configloader.load_bilibili(fileDir + "/conf/bilibili.conf")['account']['username']
 
     # 获取每日包裹奖励
     async def Daily_bag(self):
@@ -32,6 +33,14 @@ class Tasks:
         response = await bilibili().get_dosign()
         temp = await response.json(content_type=None)
         Printer().printer(f"签到状态:{temp['msg']}", "Info", "green")
+        USE_SCKEY = self.dic_user['SCKEY']['use_sckey']
+        if USE_SCKEY is not "":
+            url = "https://sc.ftqq.com/" + USE_SCKEY + ".send?text=" + f"账号{self.user_name}签到状态:{temp['msg']}"
+            r = requests.post(url)
+            if r.json()['errno'] is 0:
+                Printer().printer("Service酱信息已发送", "Info", "green")
+            else:
+                Printer().printer("Service酱信息发送失败", "Info", "green")
 
     # 领取每日任务奖励
     async def Daily_Task(self):
