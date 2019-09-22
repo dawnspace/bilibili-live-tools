@@ -50,7 +50,7 @@ class bilibili():
             if old_session is not None:
                 await old_session.close()
 
-            # empty future will not end
+            # this continues until program shuts down
             await self.session_keep_alive()
 
     @property
