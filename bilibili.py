@@ -32,7 +32,26 @@ class bilibili():
             cls.instance.dic_bilibili = configloader.load_bilibili(
                 file_bilibili)
             cls.instance.bili_session = None
+
+            loop = asyncio.get_event_loop() # for creating future
+            cls.instance.session_open_task = asyncio.ensure_future(
+                cls().open_session())
+            cls.instance.session_keep_alive = loop.create_future()
         return cls.instance
+
+    async def open_session(self):
+        # Use the context manager to ensure graceful shutdown
+        async with aiohttp.ClientSession() as client_session:
+            old_session = self._bili_session
+            self._bili_session = client_session
+
+            # if a session is created (not by this method), 
+            # then close it normally
+            if old_session is not None:
+                await old_session.close()
+
+            # empty future will not end
+            await self.session_keep_alive()
 
     @property
     def bili_section(self):
