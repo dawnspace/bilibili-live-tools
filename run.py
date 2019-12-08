@@ -12,9 +12,9 @@ from bilibili import bilibili
 import threading
 import biliconsole
 from pkLottery import PKLottery
+from guard import Guard
 
 loop = asyncio.get_event_loop()
-loop1 = asyncio.get_event_loop()
 printer = Printer()
 bilibili()
 Statistics()
@@ -22,6 +22,7 @@ rafflehandler = Rafflehandler()
 biliconsole.Biliconsole()
 
 task = OnlineHeart()
+task0 = Guard()
 task1 = Silver()
 task2 = Tasks()
 task3 = LotteryResult()
@@ -38,6 +39,7 @@ console_thread.start()
 
 tasks = [
     task.run(),
+    task0.run(),
     task1.run(),
     task2.run(),
     biliconsole.Biliconsole().run(),
