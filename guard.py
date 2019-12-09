@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 import struct
 import json
+import time
 
 from bilibili import bilibili
 from printer import Printer
@@ -38,7 +39,8 @@ class Guard:
                         
                         position = 0
                         while position < len(data):
-                            total_len, header_len, _, cmd, _ = struct.unpack('!IHHII', data[:16])
+                            total_len, header_len, _, cmd, _ = struct.unpack(
+                                    '!IHHII', data[position:(position+16)])
                             start = position + header_len
                             end = position + total_len
                             await self.queue.put(data[start:end])
@@ -46,6 +48,7 @@ class Guard:
 
                         if ws.exception():
                             raise ws.exception()
+
             except (OSError, ConnectionRefusedError) as exc:
                 Printer().printer(
                         f'舰长服务器@{cls.SERVER}连接失败, 30s后重试...', 'Error', 'red')
@@ -69,6 +72,8 @@ class Guard:
             OriginRoomId = payload['roomid']
             GuardId = payload['id']
             r = await bilibili().get_gift_of_captain(OriginRoomId, GuardId)
+
+            Printer().printer(f'检测到{OriginRoomId}的{payload["name"]} : {GuardId}', 'Lottery', 'green')
         
             resp = await r.json(content_type=None)
             if resp['code'] == 0:
@@ -76,7 +81,7 @@ class Guard:
                 award = f'获取到房间 {OriginRoomId} 编号 {GuardId} 的上船亲密度: '
                 award += data.get('award_text', '')
                 Printer().printer(f'{award}', "Lottery", "cyan")
-            elif resp['code'] == 400 and resp['msg'] == "你已经领取过啦":
+            elif resp['code'] == -403 and resp['msg'] == "你已经领取过啦":
                 Printer().printer(
                         f"房间 {OriginRoomId} 编号 {GuardId} 的上船亲密度已领过",
                         "Info", "green")
