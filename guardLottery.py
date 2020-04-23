@@ -1,5 +1,6 @@
 import traceback
 import asyncio
+import random
 
 from bilibili import bilibili
 from schedule import Schedule
@@ -44,11 +45,14 @@ class GuardLottery:
                 return
             await bilibili().post_watching_history(OriginRoomId)
             GuardLottery.last_guard_room = OriginRoomId
+        if random.random() * 100 > 70:
+            Printer().printer(f"概率性跳过房间 {OriginRoomId} 编号 {GuardId} 的上船奖励", "Info", "green")
+            return
         # response2 = await bilibili().get_gift_of_captain_v2(OriginRoomId, GuardId)
         # json_response2 = await response2.json(content_type=None)
         # print(json_response2)
         response2 = await bilibili().get_gift_of_captain(OriginRoomId, GuardId)
-        json_response2 = await response2.json(content_type=None)
+        json_response2 = await response2.json(content_type = None)
         if json_response2['code'] == 0:
             Printer().printer(f"获取到房间 {OriginRoomId} 编号 {GuardId} 的上船奖励: "
                               f"{json_response2['data']['award_text']}" if json_response2['data']['award_text'] else
