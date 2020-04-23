@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+    bilibili:
+        container_name: bilibili
+        restart: unless-stopped
+        image: shenmishajing/bilibili-live-tools
+        volumes:
+            - ./conf/user.conf:/app/conf/user.conf
+        environment: 
+            - USER_NAME=<your user phone numeber>
+            - USER_PASSWORD=<your passwd>
