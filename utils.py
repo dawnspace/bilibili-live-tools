@@ -72,7 +72,7 @@ async def fetch_medal(printer = True, sort_list = None):
                                                            str(i['todayFeed']) + '/' + str(i['dayLimit']),
                                                            adjust_for_chinese(str(i['rank'])),
                                                            dic_worn[str(i['status'])]))
-        sorted_medal.sort(key = lambda x: sort_list.find(x))
+        sorted_medal.sort(key = lambda x: sort_list.index(x))
         if hold_medal is not None:
             return [hold_medal] + sorted_medal + unsorted_medal
         else:
