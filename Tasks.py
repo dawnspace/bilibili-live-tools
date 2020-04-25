@@ -108,7 +108,7 @@ class Tasks:
                             tmp1 = temp_dic[gift_id] / 100 * tmp
                             calculate = calculate + tmp1
                             await utils.send_gift_web(roomid, gift_id, tmp, bag_id)
-                            temp[i][1] -= tmp
+                            temp[i][1] = str(int(temp[i][1]) - tmp)
                             left_num = left_num - tmp1
                 Printer().printer(f"向房间{roomid}送出亲密度为{int(calculate)}的礼物", "Info", "green")
 
