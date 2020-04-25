@@ -76,7 +76,8 @@ class Tasks:
 
     async def auto_send_gift(self):
         if self.dic_user['auto-gift']['on/off'] == "1":
-            medal_list = await utils.fetch_medal(printer = False, sort_list = self.dic_user['auto-gift']['sort_list'])
+            sort_list = [int(x) for x in self.dic_user['auto-gift']['sort_list'].split(',')]
+            medal_list = await utils.fetch_medal(printer = False, sort_list = sort_list)
             # res = await bilibili().gift_list()
             # json_res = await res.json()
             # temp_dic = {}
