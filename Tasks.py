@@ -30,7 +30,7 @@ class Tasks:
     # 签到功能
     async def DoSign(self):
         response = await bilibili().get_dosign()
-        temp = await response.json(content_type=None)
+        temp = await response.json(content_type = None)
         Printer().printer(f"签到状态:{temp['message']}", "Info", "green")
 
     # 领取每日任务奖励
@@ -42,7 +42,7 @@ class Tasks:
     # 应援团签到
     async def link_sign(self):
         response = await bilibili().get_grouplist()
-        json_response = await response.json(content_type=None)
+        json_response = await response.json(content_type = None)
         check = len(json_response['data']['list'])
         group_id_list = []
         owner_uid_list = []
@@ -53,7 +53,7 @@ class Tasks:
             owner_uid_list.append(owner_uid)
         for (i1, i2) in zip(group_id_list, owner_uid_list):
             response = await bilibili().assign_group(i1, i2)
-            json_response = await response.json(content_type=None)
+            json_response = await response.json(content_type = None)
             if json_response['code'] == 0:
                 if (json_response['data']['status']) == 1:
                     Printer().printer(f"应援团{i1}已应援过", "Info", "green")
@@ -64,7 +64,7 @@ class Tasks:
 
     async def send_gift(self):
         if self.dic_user['gift']['on/off'] == '1':
-            argvs, x = await utils.fetch_bag_list(printer=False)
+            argvs, x = await utils.fetch_bag_list(printer = False)
             for i in range(0, len(argvs)):
                 giftID = argvs[i][0]
                 giftNum = argvs[i][1]
@@ -76,7 +76,7 @@ class Tasks:
 
     async def auto_send_gift(self):
         if self.dic_user['auto-gift']['on/off'] == "1":
-            a = await utils.fetch_medal(printer=False)
+            medal_list = await utils.fetch_medal(printer = False, sort_list = self.dic_user['auto-gift']['sort_list'])
             # res = await bilibili().gift_list()
             # json_res = await res.json()
             # temp_dic = {}
@@ -85,30 +85,31 @@ class Tasks:
             #     id = json_res['data'][j]['id']
             #     temp_dic[id] = price
             temp_dic = {1: 100, 6: 1000}
-            x, temp = await utils.fetch_bag_list(printer=False)
-            roomid = a[0]
-            today_feed = a[1]
-            day_limit = a[2]
-            left_num = int(day_limit) - int(today_feed)
-            calculate = 0
-            for i in range(0, len(temp)):
-                gift_id = int(temp[i][0])
-                gift_num = int(temp[i][1])
-                bag_id = int(temp[i][2])
-                expire = int(temp[i][3])
-                if gift_id in [1, 6] and expire != 0:
-                    if (gift_num * (temp_dic[gift_id] / 100) < left_num):
-                        calculate = calculate + temp_dic[gift_id] / 100 * gift_num
-                        tmp2 = temp_dic[gift_id] / 100 * gift_num
-                        await utils.send_gift_web(roomid, gift_id, gift_num, bag_id)
-                        left_num = left_num - tmp2
-                    elif left_num - temp_dic[gift_id] / 100 >= 0:
-                        tmp = (left_num) / (temp_dic[gift_id] / 100)
-                        tmp1 = (temp_dic[gift_id] / 100) * int(tmp)
-                        calculate = calculate + tmp1
-                        await utils.send_gift_web(roomid, gift_id, tmp, bag_id)
-                        left_num = left_num - tmp1
-            Printer().printer(f"自动送礼共送出亲密度为{int(calculate)}的礼物", "Info", "green")
+            x, temp = await utils.fetch_bag_list(printer = False)
+            temp.reverse()
+            for roomid, today_feed, day_limit in medal_list:
+                left_num = int(day_limit) - int(today_feed)
+                calculate = 0
+                for i in range(len(temp) - 1, -1, -1):
+                    gift_id = int(temp[i][0])
+                    gift_num = int(temp[i][1])
+                    bag_id = int(temp[i][2])
+                    expire = int(temp[i][3])
+                    if gift_id in [1, 6] and expire != 0:
+                        if gift_num * (temp_dic[gift_id] / 100) < left_num:
+                            calculate = calculate + temp_dic[gift_id] / 100 * gift_num
+                            tmp2 = temp_dic[gift_id] / 100 * gift_num
+                            await utils.send_gift_web(roomid, gift_id, gift_num, bag_id)
+                            del temp[i]
+                            left_num = left_num - tmp2
+                        elif left_num - temp_dic[gift_id] / 100 >= 0:
+                            tmp = int(left_num / (temp_dic[gift_id] / 100))
+                            tmp1 = temp_dic[gift_id] / 100 * tmp
+                            calculate = calculate + tmp1
+                            await utils.send_gift_web(roomid, gift_id, tmp, bag_id)
+                            temp[i][1] -= tmp
+                            left_num = left_num - tmp1
+                Printer().printer(f"向房间{roomid}送出亲密度为{int(calculate)}的礼物", "Info", "green")
 
     async def doublegain_coin2silver(self):
         if self.dic_user['doublegain_coin2silver']['on/off'] == "1":
