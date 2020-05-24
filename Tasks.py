@@ -120,7 +120,7 @@ class Tasks:
 
     async def sliver2coin(self):
         if self.dic_user['coin']['on/off'] == '1':
-            response1 = await bilibili().silver2coin_app()
+            response1 = await bilibili().silver2coin_web()
             json_response1 = await response1.json()
             Printer().printer(f"银瓜子兑换硬币状态:{json_response1['msg']}", "Info", "green")
 
