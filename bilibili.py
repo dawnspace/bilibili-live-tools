@@ -150,8 +150,13 @@ class bilibili():
         return response
 
     async def silver2coin_web(self):
-        url = "https://api.live.bilibili.com/exchange/silver2coin"
-        response = await self.bili_section_post(url, headers=self.dic_bilibili['pcheaders'])
+        url = "https://api.live.bilibili.com/pay/v1/Exchange/silver2coin"
+        data ={
+            "csrf_token" : self.dic_bilibili['csrf'],
+            "csrf" : self.dic_bilibili['csrf'],
+            "visit_id" : "8u0aig7b8100"
+        }
+        response = await self.bili_section_post(url,data = data, headers=self.dic_bilibili['pcheaders'])
         return response
 
     async def silver2coin_app(self):
